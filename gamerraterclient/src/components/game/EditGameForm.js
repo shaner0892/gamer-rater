@@ -1,47 +1,48 @@
 import React, { useState, useEffect } from "react"
 import { useHistory } from 'react-router-dom'
-import { createGame, getCategories } from './GameManager.js'
+import { useParams } from "react-router-dom/cjs/react-router-dom.min"
+import { createGame, getCategories, getCurrentGame, putGame } from './GameManager.js'
 
 
-export const GameForm = () => {
+export const EditGameForm = () => {
     const history = useHistory()
     const [categories, setCategories] = useState([])
-
-    const [game, setGame] = useState({
-        title: "",
-        description: "",
-        designer: "",
-        year_released: 0,
-        number_of_players: 0,
-        estimated_time_to_play: 0,
-        age_recommendation: 0,
-        categories: []
-    })
+    const [game, setGame] = useState({})
+    const {gameId} = useParams()
 
     useEffect(() => {
         getCategories().then(categoriesData => setCategories(categoriesData))
     }, [])
 
-    const changeGameState = (event) => {
-        const newGame = Object.assign({}, game)
+    useEffect(
+        () => {
+            getCurrentGame(parseInt(gameId)).then((gameData) => {
+                    setGame(gameData)
+            })
+        },
+        []
+    )
+
+    const editGameState = (event) => {
+        const editedGame = Object.assign({}, game)
         if (event.target.name === "categories") {
-            newGame.categories.push(parseInt(event.target.id))
+            editedGame.categories.push(parseInt(event.target.value))
         }
         else {
-            newGame[event.target.name] = event.target.value
+            editedGame[event.target.name] = event.target.value
         }
-        setGame(newGame)
+        setGame(editedGame)
     }
 
     return (
         <form className="gameForm">
-            <h2 className="gameForm__title">Register Your New Game</h2>
+            <h2 className="gameForm__title">Edit Your Game</h2>
             <fieldset>
                 <div className="form-group">
                     <label htmlFor="title">Title: </label>
                     <input type="text" name="title" required autoFocus className="form-control"
                         value={game.title}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -50,7 +51,7 @@ export const GameForm = () => {
                     <label htmlFor="description">Description: </label>
                     <input type="text" name="description" required autoFocus className="form-control"
                         value={game.description}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -59,7 +60,7 @@ export const GameForm = () => {
                     <label htmlFor="designer">Designer: </label>
                     <input type="text" name="designer" required autoFocus className="form-control"
                         value={game.designer}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -68,7 +69,7 @@ export const GameForm = () => {
                     <label htmlFor="year_released">Year Released: </label>
                     <input type="number" name="year_released" required autoFocus className="form-control" 
                         value={game.year_released}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -77,7 +78,7 @@ export const GameForm = () => {
                     <label htmlFor="number_of_players">Number of players: </label>
                     <input type="number" name="number_of_players" required autoFocus className="form-control" 
                         value={game.number_of_players}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -86,7 +87,7 @@ export const GameForm = () => {
                     <label htmlFor="estimated_time_to_play">Estimated Time to Play: </label>
                     <input type="number" name="estimated_time_to_play" required autoFocus className="form-control" 
                         value={game.estimated_time_to_play}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -95,7 +96,7 @@ export const GameForm = () => {
                     <label htmlFor="age_recommendation">Age Recommendation: </label>
                     <input type="number" name="age_recommendation" required autoFocus className="form-control"
                         value={game.age_recommendation}
-                        onChange={changeGameState}
+                        onChange={editGameState}
                     />
                 </div>
             </fieldset>
@@ -106,7 +107,7 @@ export const GameForm = () => {
                         categories.map(
                             c => {
                                 return <><label> {c.name} </label>
-                                <input type="checkbox" id={c.id} name="categories" required autoFocus className="form-control" onChange={changeGameState}/>
+                                <input type="checkbox" id={c.id} checked={c.id ? "checked" : ""} name="categories" required autoFocus className="form-control" onChange={editGameState}/>
                                 </>
                             }
                         )
@@ -118,7 +119,7 @@ export const GameForm = () => {
                     // Prevent form from being submitted
                     evt.preventDefault()
 
-                    const createdGame = {
+                    const updatedGame = {
                         title: game.title,
                         description: game.description,
                         designer: game.designer,
@@ -129,11 +130,11 @@ export const GameForm = () => {
                         categories: game.categories
                     }
 
-                    // Send POST request to your API
-                    createGame(createdGame)
+                    // Send PUT request to your API
+                    putGame(updatedGame, gameId)
                         .then(() => history.push("/games"))
                 }}
-                className="btn btn-primary">Create</button>
+                className="btn btn-primary">Save</button>
         </form>
     )
 }
