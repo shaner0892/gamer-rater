@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react"
 import { useHistory, useParams } from "react-router-dom/cjs/react-router-dom.min"
-import { getCurrentGame } from "./GameManager.js"
+import { createRating, getCurrentGame } from "./GameManager.js"
 
 export const GameDetails = () => {
     const [game, setGame] = useState({categories: [], reviews: []})
     const {gameId} = useParams()
     const history = useHistory()
     const ratingOptions = [1, 2, 3, 4, 5]
+    // const [rating, setRating] = useState({
+    //     rating: 0,
+    //     game: gameId
+    // })
 
     useEffect(
         () => {
@@ -16,6 +20,13 @@ export const GameDetails = () => {
         },
         []
     )
+
+    // const addRating = (event) => {
+    //     const newRating = Object.assign({}, rating)
+    //     newRating[event.target.name] = event.target.value
+    //     setRating(newRating)
+    // }
+
 
     return (
         <>
@@ -33,12 +44,21 @@ export const GameDetails = () => {
                         game.categories.map(category => <li>{category.name}</li>)
                     }
                 </div>
-                {/* <div className="avg__rating">Average Rating: {game.average_rating}</div> */}
-
-                {/* add an onchange that saves it */}
-                <div className="game__rating">Rate this game:
+                <div className="avg__rating">Average Rating: {game.average_rating > 0 ? game.average_rating : "No ratings yet"}</div>
+                <div className="game__rating">Rate This Game:
                     {
-                        ratingOptions.map(r => {return <><input type="radio" name="rating" value={r}/><label>{r}</label></>})
+                        ratingOptions.map(r => {return <><input type="radio" name="rating" value={r} onChange={evt => {
+                            evt.preventDefault()
+                            const newRating = {
+                                rating: r,
+                                game: gameId
+                            }
+                            createRating(newRating)
+                            // add get single game to reload the page with new average
+                                .then(() => getCurrentGame(gameId).then((gameData) => {
+                                    setGame(gameData)
+                                }))
+                        }}/><label>{r}</label></>})
                     }
                 </div>
                 <div className="game__rating">Reviews:
@@ -48,7 +68,7 @@ export const GameDetails = () => {
                 </div>
                 <button id="btn" onClick={() => history.push(`/game/${game.id}/review`)}> Review Game </button><br></br>
                 {
-                    game.is_authorized ? <button id={game.id} onClick={() => history.push(`/edit-game/${game.id}`)}> Edit Game </button> : ""
+                    game.is_authorized ? <button id={game.id} onClick={() => history.push(`/edit-game/${gameId}`)}> Edit Game </button> : ""
                 }
                 
             </section>

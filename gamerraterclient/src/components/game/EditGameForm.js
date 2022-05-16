@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useHistory } from 'react-router-dom'
 import { useParams } from "react-router-dom/cjs/react-router-dom.min"
-import { createGame, getCategories, getCurrentGame, putGame } from './GameManager.js'
+import { getCategories, getCurrentGame, putGame } from './GameManager.js'
 
 
 export const EditGameForm = () => {
@@ -102,12 +102,20 @@ export const EditGameForm = () => {
             </fieldset>
             <fieldset>
                 <div className="form-group">
-                    <label htmlFor="categories">Categories: </label>
+                    <label htmlFor="categories">Categories: </label><br></br>
                     {
                         categories.map(
                             c => {
                                 return <><label> {c.name} </label>
-                                <input type="checkbox" id={c.id} checked={c.id ? "checked" : ""} name="categories" required autoFocus className="form-control" onChange={editGameState}/>
+                                <input type="checkbox" id={c.id} name="categories" checked={c.id === game.categories?.id ? "checked" : ""} required autoFocus className="form-control" onChange={editGameState}/>
+                                
+                                    {/* { 
+                                        if (c.id === game.categories?.id) {
+                                            <input type="checkbox" id={c.id} checked name="categories" required autoFocus className="form-control" onChange={editGameState}/>
+                                        } else {
+                                            <input type="checkbox" id={c.id} name="categories" required autoFocus className="form-control" onChange={editGameState}/>
+                                        }
+                                    } */}
                                 </>
                             }
                         )

@@ -67,14 +67,26 @@ export const getReviews = () => {
         .then(response => response.json())
 }
 
-export const createReview = (game) => {
+export const createReview = (review) => {
     return fetch("http://localhost:8000/gamereviews", { 
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": `Token ${localStorage.getItem("lu_token")}`
         },
-        body: JSON.stringify(game)
+        body: JSON.stringify(review)
+    })
+        .then(getGames);
+}
+
+export const createRating = (rating) => {
+    return fetch("http://localhost:8000/gameratings", { 
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Token ${localStorage.getItem("lu_token")}`
+        },
+        body: JSON.stringify(rating)
     })
         .then(getGames);
 }
